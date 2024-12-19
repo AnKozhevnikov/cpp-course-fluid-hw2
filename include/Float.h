@@ -57,10 +57,10 @@ class Float
 
     static Float random01()
     {
-        uint64_t r = rnd();
+        uint64_t r = rnd()%1'000'000'000;
         if (r < 0)
             r = -r;
-        return Float(static_cast<float>(r) / ULLONG_MAX);
+        return Float((double)r / 1'000'000'000);
     }
 };
 

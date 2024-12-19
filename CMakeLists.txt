@@ -7,9 +7,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
 set(SIZES "S(36,84),S(10,10),S(1,1)")
-set(TYPES "FAST_FIXED(32,16),DOUBLE,FLOAT,FIXED(8,5),FAST_FIXED(5,2)")
+set(TYPES "FIXED(32,16),FAST_FIXED(32,16),DOUBLE,FLOAT,FIXED(8,5),FAST_FIXED(5,2)")
 
 add_executable(fluid fluid.cpp)
 target_compile_definitions(fluid PUBLIC -DSIZES=${SIZES} -DTYPES=${TYPES})
 
 add_executable(original fluid_original.cpp)
+add_executable(fast fluid_fast.cpp)

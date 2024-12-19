@@ -130,10 +130,10 @@ template <typename T, size_t S> class FastFixed
 
     static FastFixed random01()
     {
-        uint64_t r = rnd();
+        uint64_t r = rnd()%1'000'000'000;
         if (r < 0)
             r = -r;
-        return FastFixed::from_raw((double)r / ULLONG_MAX);
+        return FastFixed((double)r / 1'000'000'000);
     }
 };
 

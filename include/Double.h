@@ -57,10 +57,10 @@ class Double
 
     static Double random01()
     {
-        uint64_t r = rnd();
+        uint64_t r = rnd()%1'000'000'000;
         if (r < 0)
             r = -r;
-        return Double((double)r / ULLONG_MAX);
+        return Double((double)r / 1'000'000'000);
     }
 };
 

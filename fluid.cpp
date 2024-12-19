@@ -49,7 +49,7 @@ bool checkSizes(size_t x, size_t y)
 }
 
 #define RUN_STATIC(t1, t2, t3, s1, s2)                                                                                 \
-    if (givenX == s1 && givenY == s2 && #t1 == givenP && #t2 == givenV && #t3 == givenVFLOW)                           \
+    if (!flag && givenX == s1 && givenY == s2 && #t1 == givenP && #t2 == givenV && #t3 == givenVFLOW)                  \
     {                                                                                                                  \
         Simulator<UNPACK t1, UNPACK t2, UNPACK t3, s1, s2> f;                                                          \
         f.run(source);                                                                                                 \
@@ -57,7 +57,7 @@ bool checkSizes(size_t x, size_t y)
     }
 
 #define RUN_DYNAMIC(t1, t2, t3)                                                                                        \
-    if (#t1 == givenP && #t2 == givenV && #t3 == givenVFLOW && !checkSizes(givenX, givenY))                            \
+    if (!flag && #t1 == givenP && #t2 == givenV && #t3 == givenVFLOW && !checkSizes(givenX, givenY))                   \
     {                                                                                                                  \
         Simulator<UNPACK t1, UNPACK t2, UNPACK t3, 0, 0> f(givenX, givenY);                                            \
         f.run(source);                                                                                                 \
@@ -131,7 +131,6 @@ int main(int argc, char **argv)
         int pos = arg.find("=");
         std::string key = arg.substr(0, pos);
         std::string value = arg.substr(pos + 1);
-        cout << key << ' ' << value << endl;
         if (key == "--p-type")
             givenP = value;
         else if (key == "--v-type")
