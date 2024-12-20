@@ -13,4 +13,3 @@ add_executable(fluid fluid.cpp)
 target_compile_definitions(fluid PUBLIC -DSIZES=${SIZES} -DTYPES=${TYPES})
 
 add_executable(original fluid_original.cpp)
-add_executable(fast fluid_fast.cpp)
