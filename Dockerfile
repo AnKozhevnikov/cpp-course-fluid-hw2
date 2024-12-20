@@ -1,4 +1,4 @@
-# Use an official Ubuntu as a parent image
+# Use an official Debian as a parent image
 FROM debian:12
 
 # Install dependencies
