@@ -23,4 +23,4 @@ RUN cmake ..
 RUN make
 
 # Run the built executable
-CMD ["./fluid", "--p-type=FIXED(32,16)", "--v-type=FIXED(32,16)", "--v-flow-type=FIXED(32,16)", "--source=field.txt"]
+CMD ["./fluid", "--p-type=FIXED(32,16)", "--v-type=FIXED(32,16)", "--v-flow-type=FIXED(32,16)", "--source=field.txt", "--save-interval=20"]

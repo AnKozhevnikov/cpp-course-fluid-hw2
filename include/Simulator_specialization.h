@@ -42,6 +42,141 @@ template <typename P, typename V, typename VFLOW> class Simulator<P, V, VFLOW, 0
     int UT;
     char **field;
 
+    void save(int tick)
+    {
+        signal(SIGINT, SIG_IGN);
+        std::ofstream f("save.txt");
+        if (!f)
+        {
+            std::cerr << "Error opening file for writing: save.txt" << std::endl;
+            return;
+        }
+        f << pOriginal << " " << vOriginal << " " << vFlowOriginal << "\n";
+        f << N << " " << M << "\n";
+        f << tick << "\n";
+        f << UT << "\n";
+        for (int i = 0; i < N; ++i)
+        {
+            f << field[i] << "\n";
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f << p[i][j] << " ";
+            }
+            f << "\n";
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f << old_p[i][j] << " ";
+            }
+            f << "\n";
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f << last_use[i][j] << " ";
+            }
+            f << "\n";
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                for (int k = 0; k < 4; ++k)
+                {
+                    f << velocity.v[i][j][k] << " ";
+                }
+                f << "\n";
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                for (int k = 0; k < 4; ++k)
+                {
+                    f << velocity_flow.v[i][j][k] << " ";
+                }
+                f << "\n";
+            }
+        }
+        f.close();
+        signal(SIGINT, SIG_DFL);
+    }
+
+    int load()
+    {
+        std::ifstream f("save.txt");
+        if (!f)
+        {
+            std::cerr << "Error opening file for reading: save.txt" << std::endl;
+            exit(1);
+        }
+        std::string p_name, v_name, vflow_name;
+        f >> p_name >> v_name >> vflow_name;
+        int tick;
+        f >> N >> M;
+        f >> tick;
+        f >> UT;
+        std::string line;
+        std::getline(f, line); // skip newline
+        for (int i = 0; i < N; ++i)
+        {
+            std::string line;
+            std::getline(f, line);
+            std::copy(line.begin(), line.end(), field[i]);
+            field[i][line.size()] = '\0';
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f >> p[i][j];
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f >> old_p[i][j];
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f >> last_use[i][j];
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                for (int k = 0; k < 4; ++k)
+                {
+                    f >> velocity.v[i][j][k];
+                }
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                for (int k = 0; k < 4; ++k)
+                {
+                    f >> velocity_flow.v[i][j][k];
+                }
+            }
+        }
+        f.close();
+        return tick;
+    }
+
     Simulator(size_t x, size_t y) : velocity(x, y), velocity_flow(x, y)
     {
         N = x;

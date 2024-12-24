@@ -130,15 +130,14 @@ template <typename T, size_t S> class FastFixed
 
     static FastFixed random01()
     {
-        uint64_t r = rnd()%1'000'000'000;
+        uint64_t r = rnd() % 1'000'000'000;
         if (r < 0)
             r = -r;
         return FastFixed((double)r / 1'000'000'000);
     }
 };
 
-template <typename T, size_t S>
-double to_double(FastFixed<T, S> x)
+template <typename T, size_t S> double to_double(FastFixed<T, S> x)
 {
     return x.v / (double)(1 << S);
 }
@@ -239,5 +238,13 @@ template <typename T, size_t S> FastFixed<T, S> abs(FastFixed<T, S> x)
 
 template <typename T, size_t S> ostream &operator<<(ostream &out, FastFixed<T, S> x)
 {
-    return out << x.v / (double)(1 << S);
+    return out << x.v;
+}
+
+template <typename T, size_t S> istream &operator>>(istream &in, FastFixed<T, S> &x)
+{
+    T d;
+    in >> d;
+    x = FastFixed<T, S>::from_raw(d);
+    return in;
 }

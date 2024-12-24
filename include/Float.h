@@ -172,3 +172,9 @@ ostream &operator<<(ostream &os, Float x)
     os << x.v;
     return os;
 }
+
+istream &operator>>(istream &is, Float x)
+{
+    is >> x.v;
+    return is;
+}

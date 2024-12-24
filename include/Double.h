@@ -172,3 +172,9 @@ ostream &operator<<(ostream &os, Double x)
     os << x.v;
     return os;
 }
+
+istream &operator>>(istream &is, Double x)
+{
+    is >> x.v;
+    return is;
+}

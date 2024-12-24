@@ -3,8 +3,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-template <typename P, typename V, typename VFLOW, size_t S1, size_t S2>
-class Simulator
+template <typename P, typename V, typename VFLOW, size_t S1, size_t S2> class Simulator
 {
   public:
     static constexpr std::array<pair<int, int>, 4> deltas{{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}};
@@ -43,6 +42,141 @@ class Simulator
     int last_use[S1][S2];
     int UT;
     char field[S1][S2 + 1];
+
+    void save(int tick)
+    {
+        signal(SIGINT, SIG_IGN);
+        std::ofstream f("save.txt");
+        if (!f)
+        {
+            std::cerr << "Error opening file for writing: save.txt" << std::endl;
+            return;
+        }
+        f << pOriginal << " " << vOriginal << " " << vFlowOriginal << "\n";
+        f << N << " " << M << "\n";
+        f << tick << "\n";
+        f << UT << "\n";
+        for (int i = 0; i < N; ++i)
+        {
+            f << field[i] << "\n";
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f << p[i][j] << " ";
+            }
+            f << "\n";
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f << old_p[i][j] << " ";
+            }
+            f << "\n";
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f << last_use[i][j] << " ";
+            }
+            f << "\n";
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                for (int k = 0; k < 4; ++k)
+                {
+                    f << velocity.v[i][j][k] << " ";
+                }
+                f << "\n";
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                for (int k = 0; k < 4; ++k)
+                {
+                    f << velocity_flow.v[i][j][k] << " ";
+                }
+                f << "\n";
+            }
+        }
+        f.close();
+        signal(SIGINT, SIG_DFL);
+    }
+
+    int load()
+    {
+        std::ifstream f("save.txt");
+        if (!f)
+        {
+            std::cerr << "Error opening file for reading: save.txt" << std::endl;
+            exit(1);
+        }
+        std::string p_name, v_name, vflow_name;
+        f >> p_name >> v_name >> vflow_name;
+        int tick;
+        f >> N >> M;
+        f >> tick;
+        f >> UT;
+        std::string line;
+        std::getline(f, line); // skip newline
+        for (int i = 0; i < N; ++i)
+        {
+            std::string line;
+            std::getline(f, line);
+            std::copy(line.begin(), line.end(), field[i]);
+            field[i][line.size()] = '\0';
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f >> p[i][j];
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f >> old_p[i][j];
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                f >> last_use[i][j];
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                for (int k = 0; k < 4; ++k)
+                {
+                    f >> velocity.v[i][j][k];
+                }
+            }
+        }
+        for (int i = 0; i < N; ++i)
+        {
+            for (int j = 0; j < M; ++j)
+            {
+                for (int k = 0; k < 4; ++k)
+                {
+                    f >> velocity_flow.v[i][j][k];
+                }
+            }
+        }
+        f.close();
+        return tick;
+    }
 
     Simulator() : velocity(), velocity_flow()
     {
@@ -216,25 +350,35 @@ class Simulator
         return ret;
     }
 
-    void run(std::string source)
+    void run(std::string source = "", int save_interval = 0, bool load_save = false)
     {
         rho[' '] = 0.01;
         rho['.'] = 1000;
         P g = 0.1;
 
-        FILE *f = fopen(source.c_str(), "r");
-        size_t n, m;
-        fscanf(f, "%zu %zu\n", &n, &m);
-        for (size_t x = 0; x < N; ++x)
+        int tick = 0;
+
+        if (load_save)
         {
-            for (size_t y = 0; y < M; ++y)
-            {
-                field[x][y] = fgetc(f);
-            }
-            field[x][M] = '\0';
-            fgetc(f);
+            tick = load();
+            cout << "Loaded save at tick " << tick << "\n";
         }
-        fclose(f);
+        else
+        {
+            FILE *f = fopen(source.c_str(), "r");
+            size_t n, m;
+            fscanf(f, "%zu %zu\n", &n, &m);
+            for (size_t x = 0; x < N; ++x)
+            {
+                for (size_t y = 0; y < M; ++y)
+                {
+                    field[x][y] = fgetc(f);
+                }
+                field[x][M] = '\0';
+                fgetc(f);
+            }
+            fclose(f);
+        }
 
         for (size_t x = 0; x < N; ++x)
         {
@@ -249,7 +393,7 @@ class Simulator
             }
         }
 
-        for (size_t i = 0; i < T; ++i)
+        for (size_t i = tick + 1; i < T; ++i)
         {
             P total_delta_p = 0;
             for (size_t x = 0; x < N; ++x)
@@ -381,6 +525,11 @@ class Simulator
                 {
                     cout << field[x] << "\n";
                 }
+            }
+
+            if (save_interval > 0 && i % save_interval == 0)
+            {
+                save(i);
             }
         }
     }

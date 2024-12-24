@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 
 constexpr size_t T = 1'000'000;
+std::string pOriginal;
+std::string vOriginal;
+std::string vFlowOriginal;
 
 #include "Simulator.h"
 #include "Simulator_specialization.h"
@@ -52,7 +55,7 @@ bool checkSizes(size_t x, size_t y)
     if (!flag && givenX == s1 && givenY == s2 && #t1 == givenP && #t2 == givenV && #t3 == givenVFLOW)                  \
     {                                                                                                                  \
         Simulator<UNPACK t1, UNPACK t2, UNPACK t3, s1, s2> f;                                                          \
-        f.run(source);                                                                                                 \
+        f.run(source, save_interval, load_save);                                                                       \
         flag = true;                                                                                                   \
     }
 
@@ -124,6 +127,9 @@ int main(int argc, char **argv)
     std::string givenV;
     std::string givenVFLOW;
     std::string source;
+    int save_interval = 0;
+    bool load_save = false;
+    size_t givenX, givenY;
 
     for (int i = 1; i < argc; i++)
     {
@@ -139,17 +145,43 @@ int main(int argc, char **argv)
             givenVFLOW = value;
         else if (key == "--source")
             source = value;
+        else if (key == "--save-interval")
+            save_interval = std::stoi(value);
+        else if (key == "--load-save")
+            load_save = true;
     }
 
-    FILE *f = fopen(source.c_str(), "r");
-    size_t givenX, givenY;
-    fscanf(f, "%zu", &givenX);
-    fscanf(f, "%zu", &givenY);
-    fclose(f);
-
-    givenP = prettify(givenP);
-    givenV = prettify(givenV);
-    givenVFLOW = prettify(givenVFLOW);
+    if (load_save)
+    {
+        std::ifstream f("save.txt");
+        if (!f)
+        {
+            std::cerr << "Error opening file for reading: save.txt" << std::endl;
+            exit(1);
+        }
+        f >> givenP >> givenV >> givenVFLOW;
+        f >> givenX >> givenY;
+        f.close();
+        pOriginal = givenP;
+        vOriginal = givenV;
+        vFlowOriginal = givenVFLOW;
+        givenP = prettify(givenP);
+        givenV = prettify(givenV);
+        givenVFLOW = prettify(givenVFLOW);
+    }
+    else
+    {
+        FILE *f = fopen(source.c_str(), "r");
+        fscanf(f, "%zu", &givenX);
+        fscanf(f, "%zu", &givenY);
+        pOriginal = givenP;
+        vOriginal = givenV;
+        vFlowOriginal = givenVFLOW;
+        givenP = prettify(givenP);
+        givenV = prettify(givenV);
+        givenVFLOW = prettify(givenVFLOW);
+        fclose(f);
+    }
 
     COMBINE3(RUN_STATIC, RUN_DYNAMIC, TYPES)
 

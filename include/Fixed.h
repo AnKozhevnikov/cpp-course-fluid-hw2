@@ -65,15 +65,14 @@ template <typename T, size_t S> class Fixed
 
     static Fixed random01()
     {
-        uint64_t r = rnd()%1'000'000'000;
+        uint64_t r = rnd() % 1'000'000'000;
         if (r < 0)
             r = -r;
         return Fixed((double)r / 1'000'000'000);
     }
 };
 
-template <typename T, size_t S>
-double to_double(Fixed<T, S> x)
+template <typename T, size_t S> double to_double(Fixed<T, S> x)
 {
     return x.v / (double)(1 << S);
 }
@@ -174,5 +173,13 @@ template <typename T, size_t S> Fixed<T, S> abs(Fixed<T, S> x)
 
 template <typename T, size_t S> ostream &operator<<(ostream &out, Fixed<T, S> x)
 {
-    return out << x.v / (double)(1 << S);
+    return out << x.v;
+}
+
+template <typename T, size_t S> istream &operator>>(istream &in, Fixed<T, S> &x)
+{
+    T d;
+    in >> d;
+    x = Fixed<T, S>::from_raw(d);
+    return in;
 }
